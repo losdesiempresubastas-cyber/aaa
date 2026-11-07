@@ -40,52 +40,70 @@ const MIME_TYPES = {
 };
 
 // Resolver rutas de API equivalentes a las funciones de Vercel
+// Se importan de forma estática y explícita para que Vercel (NFT) y Node.js las incluyan siempre en el despliegue.
+const apiHealth = require('./api/health');
+const apiAuthRegistro = require('./api/auth/registro');
+const apiAuthLogin = require('./api/auth/login');
+const apiAuthLogout = require('./api/auth/logout');
+const apiAuthMe = require('./api/auth/me');
+const apiAuthPerfil = require('./api/auth/perfil');
+const apiProductos = require('./api/productos/index');
+const apiProductosId = require('./api/productos/[id]');
+const apiProductosMisPublicaciones = require('./api/productos/mis-publicaciones');
+const apiCarrito = require('./api/productos/carrito/index');
+const apiCarritoId = require('./api/productos/carrito/[id]');
+const apiFavoritos = require('./api/productos/favoritos/index');
+const apiFavoritosId = require('./api/productos/favoritos/[id]');
+const apiImagenId = require('./api/imagen/[id]');
+
 function encontrarManejadorApi(pathname) {
-  // Limpiar /api/
-  const sub = pathname.replace(/^\/api\/?/, '');
+  // Limpiar /api/ y barras finales
+  const sub = pathname.replace(/^\/api\/?/, '').replace(/\/$/, '');
   const partes = sub.split('/').filter(Boolean);
 
   if (partes.length === 0) return null;
 
   // 1. /api/health
   if (partes.length === 1 && partes[0] === 'health') {
-    return { handler: require('./api/health'), queryParams: {} };
+    return { handler: apiHealth, queryParams: {} };
   }
 
   // 2. /api/auth/:action
   if (partes[0] === 'auth' && partes.length === 2) {
-    const ruta = path.join(__dirname, 'api', 'auth', `${partes[1]}.js`);
-    if (fs.existsSync(ruta)) return { handler: require(ruta), queryParams: {} };
+    const accion = partes[1];
+    if (accion === 'registro') return { handler: apiAuthRegistro, queryParams: {} };
+    if (accion === 'login') return { handler: apiAuthLogin, queryParams: {} };
+    if (accion === 'logout') return { handler: apiAuthLogout, queryParams: {} };
+    if (accion === 'me') return { handler: apiAuthMe, queryParams: {} };
+    if (accion === 'perfil') return { handler: apiAuthPerfil, queryParams: {} };
   }
 
   // 3. /api/imagen/:id
   if (partes[0] === 'imagen' && partes.length === 2) {
-    return { handler: require('./api/imagen/[id].js'), queryParams: { id: partes[1] } };
+    return { handler: apiImagenId, queryParams: { id: partes[1] } };
   }
 
-  // 4. /api/productos/carrito o /api/productos/favoritos
-  if (partes[0] === 'productos' && (partes[1] === 'carrito' || partes[1] === 'favoritos')) {
-    if (partes.length === 2) {
-      return { handler: require(`./api/productos/${partes[1]}/index.js`), queryParams: {} };
-    }
-    if (partes.length === 3) {
-      return { handler: require(`./api/productos/${partes[1]}/[id].js`), queryParams: { id: partes[2] } };
-    }
+  // 4. /api/productos/carrito
+  if (partes[0] === 'productos' && partes[1] === 'carrito') {
+    if (partes.length === 2) return { handler: apiCarrito, queryParams: {} };
+    if (partes.length === 3) return { handler: apiCarritoId, queryParams: { id: partes[2] } };
   }
 
-  // 5. /api/productos/mis-publicaciones
+  // 5. /api/productos/favoritos
+  if (partes[0] === 'productos' && partes[1] === 'favoritos') {
+    if (partes.length === 2) return { handler: apiFavoritos, queryParams: {} };
+    if (partes.length === 3) return { handler: apiFavoritosId, queryParams: { id: partes[2] } };
+  }
+
+  // 6. /api/productos/mis-publicaciones
   if (partes[0] === 'productos' && partes[1] === 'mis-publicaciones') {
-    return { handler: require('./api/productos/mis-publicaciones.js'), queryParams: {} };
+    return { handler: apiProductosMisPublicaciones, queryParams: {} };
   }
 
-  // 6. /api/productos
+  // 7. /api/productos
   if (partes[0] === 'productos') {
-    if (partes.length === 1) {
-      return { handler: require('./api/productos/index.js'), queryParams: {} };
-    }
-    if (partes.length === 2) {
-      return { handler: require('./api/productos/[id].js'), queryParams: { id: partes[1] } };
-    }
+    if (partes.length === 1) return { handler: apiProductos, queryParams: {} };
+    if (partes.length === 2) return { handler: apiProductosId, queryParams: { id: partes[1] } };
   }
 
   return null;
@@ -124,17 +142,7 @@ const server = http.createServer(async (req, res) => {
 
     Object.assign(req.query, route.queryParams);
 
-    // Parsear body JSON si existe
-    let bodyData = '';
-    req.on('data', chunk => { bodyData += chunk; });
-    req.on('end', async () => {
-      if (bodyData) {
-        try { req.body = JSON.parse(bodyData); }
-        catch { req.body = {}; }
-      } else {
-        req.body = {};
-      }
-
+    const ejecutar = async () => {
       try {
         await route.handler(req, res);
       } catch (err) {
@@ -143,6 +151,25 @@ const server = http.createServer(async (req, res) => {
           res.status(500).json({ error: err.message || 'Error interno del servidor.' });
         }
       }
+    };
+
+    // Si el body ya fue parseado previamente por Vercel
+    if (req.body && typeof req.body === 'object') {
+      ejecutar();
+      return;
+    }
+
+    // Parsear body JSON si existe
+    let bodyData = '';
+    req.on('data', chunk => { bodyData += chunk; });
+    req.on('end', async () => {
+      if (bodyData) {
+        try { req.body = JSON.parse(bodyData); }
+        catch { req.body = {}; }
+      } else if (!req.body) {
+        req.body = {};
+      }
+      await ejecutar();
     });
     return;
   }
