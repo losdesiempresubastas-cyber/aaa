@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CA INDEPENDIENTE SUBASTAS</title>
+
+<style>
+
+* { margin: 0; padding: 0; box-sizing: border-box;}
+
+body {font-family: Arial, sans-serif; background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(fotos/Fondo.PNG); background-size: cover; background-position: left; background-attachment: fixed; min-height: 100vh; background-repeat: no-repeat;}
+
+.barra-superior { background-color: rgb(200,4,10); position: fixed; top: 0; left: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-sizing: border-box; z-index: 1000;}
+
+.barra-superior nav {display: flex; gap: 30px;}
+
+.barra-superior a { color: white; text-decoration: none; font-family: Arial, sans-serif; font-size: 18px; padding: 10px 15px; border-radius: 5px;}
+
+.barra-superior a:hover{background-color: #222}
+
+.escudos {display: flex;align-items: center;gap: 10px;}
+
+.escudos img {width: 50px; height: 50px; object-fit: contain;}
+
+.escudo3 {display: flex;align-items: center;gap: 10px;}
+
+.escudo3 img {width: 100px; height: 100px; object-fit: contain;}
+
+.interfaz-principal {display: flex; flex-direction: row-reverse; max-width: 1300px; margin: 120px auto 50px auto; padding: 0 20px; gap: 30px;}
+
+.contenedor-historia {flex: 2; background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);}
+
+.contenedor-historia h1 {color: rgb(200,4,10); font-size: 32px; margin-bottom: 20px; text-align: center; border-bottom: 3px solid rgb(200,4,10); padding-bottom: 10px;}
+
+.contenedor-historia h2 {color: #222; font-size: 22px; margin-top: 25px; margin-bottom: 12px;}
+
+.contenedor-historia p {color: #444; font-size: 16px; line-height: 1.6; margin-bottom: 15px; text-align: justify;}
+
+.destaque {background-color: rgba(200,4,10,0.05); border-left: 5px solid rgb(200,4,10); padding: 15px; font-style: italic; margin: 20px 0;}
+
+.panel-noticias {flex: 1; background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 110px;}
+
+.panel-noticias h3 {color: #222; font-size: 20px; margin-bottom: 15px; border-left: 4px solid rgb(200,4,10); padding-left: 10px; display: flex; justify-content: space-between; align-items: center;}
+
+.indicador-vivo {font-size: 11px; background-color: #28a745; color: white; padding: 3px 8px; border-radius: 12px; text-transform: uppercase; animation: parpadeo 1.5s infinite;}
+
+#lista-noticias {display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 5px;}
+
+.noticia-item {background-color: #f9f9f9; padding: 15px; border-radius: 6px;border-top: 3px solid #ccc;transition: all 0.3s ease;animation: entradaNoticia 0.5s ease-out;}
+
+.noticia-item.reciente {border-top-color: rgb(200,4,10);}
+
+.noticia-hora {font-size: 12px; color: #888; margin-bottom: 5px; display: block;}
+
+.noticia-titulo {font-size: 14px; font-weight: bold; color: #222; line-height: 1.4;}
+
+.menu-flotante {position: fixed; bottom: 25px; right: 25px; display: flex; flex-direction: column-reverse; align-items: center; z-index: 2000;}
+
+.boton-principal {width: 60px; height: 60px; border: none; border-radius: 50%; background-color: #c8102e; color: white; font-size: 25px; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);}
+
+.botones-secundarios {display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; opacity: 0; transform: translateY(20px); pointer-events: none; transition: 0.3s ease;}
+
+.botones-secundarios a {width: 130px; padding: 12px; background-color: #222; color: white; text-decoration: none; text-align: center; border-radius: 8px; font-family: Arial, sans-serif;}
+
+.menu-flotante:hover .botones-secundarios {opacity: 1; transform: translateY(0); pointer-events: auto;}
+
+/* Animaciones */
+
+@keyframes parpadeo {
+
+0% { opacity: 0.4; }
+
+50% { opacity: 1; }
+
+100% { opacity: 0.4; }
+
+}
+
+@keyframes entradaNoticia {
+
+from { opacity: 0; transform: translateY(-10px); }
+
+to { opacity: 1; transform: translateY(0); }
+
+}
+
+
+@media (max-width: 760px) {
+  .barra-superior { height: auto; min-height: 80px; padding: 10px 12px; flex-wrap: wrap; justify-content: center; gap: 6px; }
+  .barra-superior nav { gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .barra-superior a { font-size: 14px; padding: 7px; }
+  .escudos img { width: 36px; height: 36px; }
+  h1 { font-size: 28px; padding-top: 145px; }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="menu-flotante">
+        <button class="boton-principal">☰</button>
+        <div class="botones-secundarios">
+            <a href="Compras.html">Compra / ofertas</a>
+             <a href="articulos_publicados.html">Articulos publicados</a>
+            <a href="Favoritos.html">Seguidos / Favoritos</a>
+            <a href="Carrito.html">Tu Carrito</a>
+        </div>
+    </div>
+  
+<header class="barra-superior">
+
+<div class="escudos">
+
+<img src="fotos/escudo1.PNG">
+
+<img src="fotos/escudo2.PNG">
+
+<img src="fotos/Captura.PNG">
+
+</div>
+
+<nav>
+
+<a href="prueba1.html">Inicio</a>
+
+<a href="Compras.html">Tienda</a>
+
+<a href="sedes.html">Sedes</a>
+
+<a href="nosotros.html">Nosotros</a>
+
+<a href="articulos_publicados.html">Publicar</a>
+
+<a href="Perfil.html">Perfil</a>
+
+<a href="login.html">Ingresar</a>
+
+</nav>
+
+</header>
+
+<div class="interfaz-principal">
+
+<!-- SECCIÓN DE HISTORIA (Se renderiza a la derecha por row-reverse) -->
+
+<main class="contenedor-historia">
+
+<h1>Club Atlético Independiente</h1>
+
+<h2>Fundación e Inicios (1905)</h2>
+
+<p>El Club Atlético Independiente fue fundado formalmente el 1 de enero de 1905 por un grupo de jóvenes empleados de una tienda en Buenos Aires llamada "A la Ciudad de Londres". Al no ser integrados en el club de fútbol de la empresa, decidieron independizarse. De ahí nace su nombre histórico, mudándose poco después a la ciudad de Avellaneda, su hogar definitivo.</p>
+
+<div class="destaque">
+
+"Orgullo Nacional: El club adoptó el color rojo en su camiseta en 1907, inspirado por el Nottingham Forest de Inglaterra, equipo que maravilló a los fundadores por su estilo de juego."
+
+</div>
+
+<h2>El Rey de Copas</h2>
+
+<p>Independiente se ganó a pulso el apodo del "Rey de Copas" gracias a su impresionante dominio internacional, especialmente durante las décadas de 1960 y 1970. Se convirtió en el máximo ganador de la Copa Libertadores de América, un récord que ostenta con orgullo hasta el día de hoy con 7 títulos invictos en finales.</p>
+
+<h2>La Época Dorada y sus Ídolos</h2>
+
+<p>Por sus filas pasaron gigantes del fútbol mundial. El máximo exponente de su rica historia es Ricardo Enrique Bochini, el eterno "10" que deslumbró al continente con su juego cerebral y sus pases milimétricos. Bajo su liderazgo, junto a figuras como Daniel Bertoni y Arsenio Erico (máximo goleador del fútbol argentino), el club alcanzó la cima del mundo al vencer a la Juventus y al Liverpool en las Copas Intercontinentales.</p>
+
+<h2>Presente e Identidad</h2>
+
+<p>Hoy en día, el club mantiene viva su mística en el Estadio Libertadores de América - Ricardo Enrique Bochini. Su rica historia de buen juego ("paladar negro") y sus 18 títulos internacionales lo posicionan como uno de los gigantes indiscutidos del fútbol mundial.</p>
+
+</main>
+
+<!-- SECCIÓN DE NOTICIAS (Se renderiza a la izquierda por row-reverse) -->
+
+<aside class="panel-noticias">
+
+<h3>Últimas Noticias <span class="indicador-vivo">En vivo</span></h3>
+
+<div id="lista-noticias">
+
+<!-- Las noticias dinámicas aparecerán aquí -->
+
+</div>
+
+</aside>
+
+</div>
+
+<script>
+
+const bancoNoticias = [
+
+"Mercado de pases: Cuenta regresiva en Avellaneda para cerrar el último cupo especial por venta al exterior.",
+
+"El Libertadores de América se prepara para el próximo partido de local con localidades agotadas.",
+
+"Declaraciones: El DT analiza variantes tácticas en el mediocampo de cara a la próxima fecha del torneo.",
+
+"Reserva: El Rojo igualó sin goles en el estreno de Jadson Viera al frente del equipo.",
+
+"Institucional: Avanzan las obras de modernización en los accesos y luminarias del estadio.",
+
+"Fútbol Profesional: El plantel completó un nuevo turno de entrenamiento con trabajos físicos y con pelota.",
+
+"Mercado de pases: Dirigentes evalúan ofertas del exterior por juveniles formados en el club.",
+
+"Las Diablas: El equipo de fútbol femenino afina detalles para disputar la quinta jornada del campeonato."
+
+];
+
+function obtenerHoraActual() {
+
+const ahora = new Date();
+
+const horas = String(ahora.getHours()).padStart(2, '0');
+
+const minutos = String(ahora.getMinutes()).padStart(2, '0');
+
+return `${horas}:${minutos}`;
+
+}
+
+function agregarNuevaNoticia() {
+
+const contenedor = document.getElementById('lista-noticias');
+
+const noticiasPrevias = contenedor.getElementsByClassName('noticia-item');
+
+if (noticiasPrevias.length > 0) {
+
+noticiasPrevias[0].classList.remove('reciente');
+
+}
+
+const textoAleatorio = bancoNoticias[Math.floor(Math.random() * bancoNoticias.length)];
+
+const nuevaTarjeta = document.createElement('div');
+
+nuevaTarjeta.className = 'noticia-item reciente';
+
+nuevaTarjeta.innerHTML = `
+
+<span class="noticia-hora">${obtenerHoraActual()} hs</span>
+
+<p class="noticia-titulo">${textoAleatorio}</p>
+
+`;
+
+contenedor.insertBefore(nuevaTarjeta, contenedor.firstChild);
+
+}
+
+agregarNuevaNoticia();
+
+setInterval(agregarNuevaNoticia, 4000);
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CA INDEPENDIENTE SUBASTAS - TIENDA</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(fotos/Compras.PNG);
+            background-size: cover;
+            background-position: left;
+            background-attachment: fixed;
+            min-height: 100vh;
+            background-repeat: no-repeat;
+            margin: 0;
+            color: #222;
+        }
+
+        h1 {
+            font-size: 38px;
+            color: rgb(200, 4, 10);
+            text-align: center;
+            padding-top: 110px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        h1 span {
+            color: #fff;
+            display: block;
+            font-size: 26px;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        .barra-superior {
+            background-color: rgb(200, 4, 10);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .barra-superior nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .barra-superior a {
+            color: white;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 17px;
+            padding: 9px 14px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .barra-superior a:hover,
+        .barra-superior a.activo {
+            background-color: #222;
+        }
+
+        .escudos {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .escudos img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        /* --- MENÚ FLOTANTE Y NOTIFICACIÓN --- */
+        .menu-flotante {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .boton-principal {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background-color: #c8102e;
+            color: white;
+            font-size: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .botones-secundarios {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+
+        .botones-secundarios a,
+        .botones-secundarios .carrito-preview {
+            width: 190px;
+            padding: 12px;
+            background-color: #222;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .botones-secundarios a:hover {
+            background-color: rgb(200, 4, 10);
+        }
+
+        .menu-flotante:hover .botones-secundarios {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Globo indicador de cantidad de artículos */
+        .contador-carrito {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: white;
+            color: #c8102e;
+            border: 2px solid #c8102e;
+            font-size: 13px;
+            font-weight: bold;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Vista rápida de productos dentro del menú */
+        .carrito-preview {
+            font-size: 13px;
+            border-top: 2px solid #c8102e;
+            background-color: #111 !important;
+            text-align: left !important;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .item-carrito {
+            margin-bottom: 5px;
+            border-bottom: 1px dashed #444;
+            padding-bottom: 5px;
+            color: white;
+        }
+
+        /* --- SECCIÓN DE PRODUCTOS EN GRIDEADO FLEX --- */
+        .contenedor-imagenes {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            margin-bottom: 60px;
+            padding: 20px;
+        }
+
+        .tarjeta-producto {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            width: 250px;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease;
+        }
+
+        .tarjeta-producto:hover {
+            transform: scale(1.03);
+        }
+
+        .tarjeta-producto img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #eee;
+        }
+
+        .tarjeta-producto h3 {
+            font-size: 16px;
+            color: #222;
+            margin: 12px 0 6px 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .tarjeta-producto p.descripcion-extra {
+            font-size: 13px;
+            color: #555;
+            margin: 0 0 8px 0;
+            line-height: 1.3;
+        }
+
+        .tarjeta-producto .precio {
+            font-size: 18px;
+            font-weight: bold;
+            color: rgb(200, 4, 10);
+            margin-bottom: 12px;
+        }
+
+        /* Botón Agregar */
+        .btn-agregar {
+            background-color: rgb(200, 4, 10);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .btn-agregar:hover {
+            background-color: #222;
+        }
+
+        .btn-favorito {
+            background-color: #222;
+            margin-top: 7px;
+        }
+
+        .btn-favorito:hover {
+            background-color: #444;
+        }
+
+        .vendedor {
+            color: #555;
+            font-size: 13px;
+            margin: 6px 0;
+        }
+
+        .seccion-titulo-comunidad {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .seccion-titulo-comunidad h2 {
+            color: #fff;
+            font-size: 24px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 760px) {
+            .barra-superior {
+                height: auto;
+                min-height: 80px;
+                padding: 10px 14px;
+                gap: 8px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .barra-superior nav {
+                gap: 6px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .barra-superior a {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+
+            .escudos img {
+                width: 36px;
+                height: 36px;
+            }
+
+            h1 {
+                font-size: 28px;
+                padding-top: 135px;
+            }
+
+            .tarjeta-producto {
+                width: min(100%, 320px);
+            }
+
+            .menu-flotante {
+                right: 12px;
+                bottom: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Menú Flotante Lateral -->
+    <div class="menu-flotante">
+        <button class="boton-principal" title="Menú de compras y subastas">
+            🛒
+            <span class="contador-carrito" id="num-articulos">0</span>
+        </button>
+        <div class="botones-secundarios">
+            <div class="carrito-preview" id="lista-vista-rapida">
+                <i style="color: #aaa; display: block; text-align: center;">Carrito vacío</i>
+            </div>
+            <a href="Compras.html">🛒 Compra / ofertas</a>
+            <a href="articulos_publicados.html">📢 Artículos publicados</a>
+            <a href="Favoritos.html">♡ Seguidos / Favoritos</a>
+            <a href="Carrito.html">🛍️ Mi Carrito</a>
+        </div>
+    </div>
+
+    <!-- Barra de Navegación Superior -->
+    <header class="barra-superior">
+        <div class="escudos">
+            <a href="prueba1.html"><img src="fotos/escudo1.PNG" alt="Escudo 1"></a>
+            <a href="prueba1.html"><img src="fotos/escudo2.PNG" alt="Escudo 2"></a>
+            <a href="prueba1.html"><img src="fotos/Captura.PNG" alt="Captura"></a>
+        </div>
+        <nav>
+            <a href="prueba1.html">Inicio</a>
+            <a href="Compras.html" class="activo">Tienda</a>
+            <a href="sedes.html">Sedes</a>
+            <a href="nosotros.html">Nosotros</a>
+            <a href="articulos_publicados.html">Publicar</a>
+            <a href="Perfil.html">Perfil</a>
+        </nav>
+    </header>
+
+    <h1>
+        Club Atlético Independiente
+        <span>TIENDA OFICIAL Y SUBASTAS</span>
+    </h1>
+
+    <!-- SECCIÓN DINÁMICA: Artículos publicados por la comunidad (si existen) -->
+    <div id="seccion-comunidad" style="display: none;">
+        <div class="seccion-titulo-comunidad">
+            <h2>📢 Artículos subastados y publicados por hinchas</h2>
+        </div>
+        <div class="contenedor-imagenes" id="productos-comunidad-dinamicos"></div>
+    </div>
+
+    <div class="seccion-titulo-comunidad">
+        <h2>🔴 Catálogo Oficial de Indumentaria</h2>
+    </div>
+
+    <!-- --- SECCIÓN DE PRODUCTOS ORIGINALES (TODOS LOS 25 ARTÍCULOS) --- -->
+    <div class="contenedor-imagenes">
+
+        <!-- Producto 1 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/CAMPERA.jpg" alt="Campera 1" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Campera 1</h3>
+            <div class="precio">$149.999</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Campera 1', 149999, 'fotos/CAMPERA.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Campera 1', 149999, 'fotos/CAMPERA.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 2 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/CAMPERA2.jpg" alt="Campera 2" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Campera 2</h3>
+            <div class="precio">$179.999</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Campera 2', 179999, 'fotos/CAMPERA2.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Campera 2', 179999, 'fotos/CAMPERA2.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 3 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/CAMPERA3.jpg" alt="Campera 3" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Campera 3</h3>
+            <div class="precio">$165.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Campera 3', 165000, 'fotos/CAMPERA3.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Campera 3', 165000, 'fotos/CAMPERA3.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 4 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/CAMPERON.jpg" alt="Camperón 1" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Camperón 1</h3>
+            <div class="precio">$165.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Camperón 1', 165000, 'fotos/CAMPERON.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Camperón 1', 165000, 'fotos/CAMPERON.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 5 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/CAMPERON2.jpg" alt="Camperón 2" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Camperón 2</h3>
+            <div class="precio">$170.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Camperón 2', 170000, 'fotos/CAMPERON2.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Camperón 2', 170000, 'fotos/CAMPERON2.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 6 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA1.jpg" alt="Remera 1" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 1</h3>
+            <div class="precio">$70.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 1', 70000, 'fotos/REMERA1.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 1', 70000, 'fotos/REMERA1.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 7 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA2.jpg" alt="Remera 2" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 2</h3>
+            <div class="precio">$90.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 2', 90000, 'fotos/REMERA2.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 2', 90000, 'fotos/REMERA2.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 8 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA3.jpg" alt="Remera 3" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 3</h3>
+            <div class="precio">$100.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 3', 100000, 'fotos/REMERA3.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 3', 100000, 'fotos/REMERA3.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 9 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA4.jpg" alt="Remera 4" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 4</h3>
+            <div class="precio">$120.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 4', 120000, 'fotos/REMERA4.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 4', 120000, 'fotos/REMERA4.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 10 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA5.jpg" alt="Remera 5" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 5</h3>
+            <div class="precio">$130.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 5', 130000, 'fotos/REMERA5.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 5', 130000, 'fotos/REMERA5.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 11 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA6.jpg" alt="Remera 6" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 6</h3>
+            <div class="precio">$97.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 6', 97000, 'fotos/REMERA6.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 6', 97000, 'fotos/REMERA6.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 12 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA7.jpg" alt="Remera 7" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 7</h3>
+            <div class="precio">$66.999</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 7', 66999, 'fotos/REMERA7.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 7', 66999, 'fotos/REMERA7.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 13 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA9.jpg" alt="Remera 8" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 8</h3>
+            <div class="precio">$117.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 8', 117000, 'fotos/REMERA9.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 8', 117000, 'fotos/REMERA9.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 14 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA10.jpg" alt="Remera 9" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 9</h3>
+            <div class="precio">$100.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 9', 100000, 'fotos/REMERA10.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 9', 100000, 'fotos/REMERA10.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 15 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA11.jpg" alt="Remera 10" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 10</h3>
+            <div class="precio">$280.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 10', 280000, 'fotos/REMERA11.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 10', 280000, 'fotos/REMERA11.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 16 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/REMERA12.jpg" alt="Remera 11" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Remera 11</h3>
+            <div class="precio">$207.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Remera 11', 207000, 'fotos/REMERA12.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Remera 11', 207000, 'fotos/REMERA12.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 17 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/SHORT1.jpg" alt="Short 1" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Short 1</h3>
+            <div class="precio">$50.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Short 1', 50000, 'fotos/SHORT1.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Short 1', 50000, 'fotos/SHORT1.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 18 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/SHORT2.jpg" alt="Short 2" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Short 2</h3>
+            <div class="precio">$55.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Short 2', 55000, 'fotos/SHORT2.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Short 2', 55000, 'fotos/SHORT2.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 19 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/SHORT3.jpg" alt="Short 3" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Short 3</h3>
+            <div class="precio">$47.999</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Short 3', 47999, 'fotos/SHORT3.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Short 3', 47999, 'fotos/SHORT3.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 20 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/SHORT4.jpg" alt="Short 4" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Short 4</h3>
+            <div class="precio">$45.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Short 4', 45000, 'fotos/SHORT4.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Short 4', 45000, 'fotos/SHORT4.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 21 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/SHORT5.jpg" alt="Short 5" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Short 5</h3>
+            <div class="precio">$44.999</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Short 5', 44999, 'fotos/SHORT5.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Short 5', 44999, 'fotos/SHORT5.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 22 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/SHORT7.jpg" alt="Short 6" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Short 7</h3>
+            <div class="precio">$60.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Short 7', 60000, 'fotos/SHORT7.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Short 7', 60000, 'fotos/SHORT7.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 23 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/SHORT8.jpg" alt="Short 7" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Short 8</h3>
+            <div class="precio">$60.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Short 8', 60000, 'fotos/SHORT8.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Short 8', 60000, 'fotos/SHORT8.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 24 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/SHORT9.jpg" alt="Short 8" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Short 9</h3>
+            <div class="precio">$80.000</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Short 9', 80000, 'fotos/SHORT9.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Short 9', 80000, 'fotos/SHORT9.jpg')">♡ Favoritos</button>
+        </div>
+
+        <!-- Producto 25 -->
+        <div class="tarjeta-producto">
+            <img src="fotos/PASAMONTAÑA.jpg" alt="Pasamontaña" onerror="this.src='fotos/Compras.PNG'">
+            <h3>Pasamontaña</h3>
+            <div class="precio">$37.999</div>
+            <button class="btn-agregar" onclick="agregarAlCarrito('Pasamontaña', 37999, 'fotos/PASAMONTAÑA.jpg')">Agregar al carrito</button>
+            <button class="btn-agregar btn-favorito" onclick="agregarAFavoritos('Pasamontaña', 37999, 'fotos/PASAMONTAÑA.jpg')">♡ Favoritos</button>
+        </div>
+
+    </div>
+
+    <script>
+        const formatoPrecio = valor => '$' + Number(valor).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+
+        // Mapa de IDs devueltos por MongoDB
+        const mongoIds = {};
+
+        async function pedir(url, opciones = {}) {
+            const respuesta = await fetch(url, { credentials: 'same-origin', ...opciones });
+            const datos = await respuesta.json().catch(() => ({}));
+            if (!respuesta.ok) throw new Error(datos.error || 'No se pudo completar la acción.');
+            return datos;
+        }
+
+        // Obtener / guardar en carrito local (para que funcione siempre, incluso sin internet en la escuela)
+        function obtenerCarritoLocal() {
+            try { return JSON.parse(localStorage.getItem('cai_carrito') || '[]'); }
+            catch { return []; }
+        }
+
+        function guardarCarritoLocal(items) {
+            localStorage.setItem('cai_carrito', JSON.stringify(items));
+        }
+
+        function obtenerFavoritosLocal() {
+            try { return JSON.parse(localStorage.getItem('cai_favoritos') || '[]'); }
+            catch { return []; }
+        }
+
+        function guardarFavoritosLocal(items) {
+            localStorage.setItem('cai_favoritos', JSON.stringify(items));
+        }
+
+        // Función para agregar al carrito
+        async function agregarAlCarrito(nombre, precio, imagen = 'fotos/Compras.PNG') {
+            // 1. Guardar en almacenamiento local
+            const carrito = obtenerCarritoLocal();
+            const existente = carrito.find(item => item.nombre === nombre);
+            if (existente) {
+                existente.cantidad = (existente.cantidad || 1) + 1;
+            } else {
+                carrito.push({ id: mongoIds[nombre] || ('local_' + Date.now()), nombre, precio: Number(precio), imagen, cantidad: 1 });
+            }
+            guardarCarritoLocal(carrito);
+
+            // 2. Si hay conexión con MongoDB, sincronizar
+            const mongoId = mongoIds[nombre];
+            if (mongoId) {
+                try {
+                    await pedir('/api/productos/carrito/' + mongoId, { method: 'POST' });
+                } catch (e) {
+                    console.log('Sincronización en servidor omitida:', e.message);
+                }
+            }
+
+            actualizarCarritoVista();
+            alert('¡' + nombre + ' agregado al carrito!');
+        }
+
+        // Función para agregar a favoritos
+        async function agregarAFavoritos(nombre, precio, imagen = 'fotos/Compras.PNG') {
+            const favs = obtenerFavoritosLocal();
+            if (!favs.some(item => item.nombre === nombre)) {
+                favs.push({ id: mongoIds[nombre] || ('fav_' + Date.now()), nombre, precio: Number(precio), imagen });
+                guardarFavoritosLocal(favs);
+            }
+
+            const mongoId = mongoIds[nombre];
+            if (mongoId) {
+                try {
+                    await pedir('/api/productos/favoritos/' + mongoId, { method: 'POST' });
+                } catch (e) {
+                    console.log('Sincronización de favoritos omitida:', e.message);
+                }
+            }
+
+            alert('¡' + nombre + ' agregado a favoritos!');
+        }
+
+        // Actualizar el contador rojo del carrito y el menú vista rápida
+        async function actualizarCarritoVista() {
+            const num = document.getElementById('num-articulos');
+            const lista = document.getElementById('lista-vista-rapida');
+
+            try {
+                // Intentar traer del servidor
+                const datos = await pedir('/api/productos/carrito');
+                if (datos.productos && datos.productos.length > 0) {
+                    const totalItems = datos.productos.reduce((acc, p) => acc + (p.cantidad || 1), 0);
+                    if (num) num.textContent = totalItems;
+                    if (lista) {
+                        lista.innerHTML = datos.productos.map(p => `
+                            <div class="item-carrito">
+                                <b>${p.nombre}</b><br>
+                                <span>${p.cantidad} x ${formatoPrecio(p.precio)}</span>
+                            </div>
+                        `).join('');
+                    }
+                    return;
+                }
+            } catch (_) {}
+
+            // Si no hay sesión o no hay servidor, usar carrito local
+            const localItems = obtenerCarritoLocal();
+            if (!localItems || localItems.length === 0) {
+                if (num) num.textContent = '0';
+                if (lista) lista.innerHTML = '<i style="color: #aaa; display: block; text-align: center;">Carrito vacío</i>';
+                return;
+            }
+
+            const total = localItems.reduce((acc, p) => acc + (p.cantidad || 1), 0);
+            if (num) num.textContent = total;
+            if (lista) {
+                lista.innerHTML = localItems.map(p => `
+                    <div class="item-carrito">
+                        <b>${p.nombre}</b><br>
+                        <span>${p.cantidad} x ${formatoPrecio(p.precio)}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Cargar artículos publicados por la comunidad para que también aparezcan en la tienda
+        async function cargarArticulosComunidad() {
+            const seccion = document.getElementById('seccion-comunidad');
+            const cont = document.getElementById('productos-comunidad-dinamicos');
+
+            let productosComunidad = [];
+
+            try {
+                const datos = await pedir('/api/productos');
+                if (datos.productos) {
+                    datos.productos.forEach(p => {
+                        mongoIds[p.nombre] = p.id;
+                        if (p.origen === 'usuario' || (p.vendedor && !p.vendedor.includes('Catálogo'))) {
+                            productosComunidad.push(p);
+                        }
+                    });
+                }
+            } catch (_) {}
+
+            // Sumar locales si hay
+            try {
+                const locales = JSON.parse(localStorage.getItem('cai_publicaciones_locales') || '[]');
+                locales.forEach(l => {
+                    if (!productosComunidad.some(p => p.id === l.id || p.nombre === l.nombre)) {
+                        productosComunidad.unshift(l);
+                    }
+                });
+            } catch (_) {}
+
+            if (productosComunidad.length > 0) {
+                seccion.style.display = 'block';
+                cont.replaceChildren();
+                productosComunidad.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'tarjeta-producto';
+
+                    const img = document.createElement('img');
+                    img.src = p.imagen || 'fotos/Compras.PNG';
+                    img.alt = p.nombre;
+                    img.onerror = () => { img.src = 'fotos/Compras.PNG'; };
+
+                    const h3 = document.createElement('h3');
+                    h3.textContent = p.nombre;
+
+                    const precio = document.createElement('div');
+                    precio.className = 'precio';
+                    precio.textContent = formatoPrecio(p.precio);
+
+                    const vend = document.createElement('p');
+                    vend.className = 'vendedor';
+                    vend.textContent = 'Publicado por: ' + (p.vendedor || 'Usuario');
+
+                    const btnCarrito = document.createElement('button');
+                    btnCarrito.className = 'btn-agregar';
+                    btnCarrito.textContent = 'Agregar al carrito';
+                    btnCarrito.onclick = () => agregarAlCarrito(p.nombre, p.precio, p.imagen);
+
+                    const btnFav = document.createElement('button');
+                    btnFav.className = 'btn-agregar btn-favorito';
+                    btnFav.textContent = '♡ Favoritos';
+                    btnFav.onclick = () => agregarAFavoritos(p.nombre, p.precio, p.imagen);
+
+                    card.append(img, h3, precio, vend, btnCarrito, btnFav);
+                    cont.appendChild(card);
+                });
+            }
+        }
+
+        // Inicializar al cargar
+        actualizarCarritoVista();
+        cargarArticulosComunidad();
+    </script>
+</body>
+
+</html>

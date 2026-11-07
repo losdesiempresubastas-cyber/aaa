@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sedes - CA Independiente Subastas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(fotos/Compras.PNG);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            background-repeat: no-repeat;
+            color: #222;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #fff;
+            text-align: center;
+            padding-top: 110px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        h1 span {
+            color: rgb(240, 40, 50);
+            display: block;
+            font-size: 24px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .barra-superior {
+            background-color: rgb(200, 4, 10);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .barra-superior nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .barra-superior a {
+            color: white;
+            text-decoration: none;
+            font-size: 17px;
+            padding: 9px 14px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .barra-superior a:hover,
+        .barra-superior a.activo {
+            background-color: #222;
+        }
+
+        .escudos {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .escudos img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        /* --- MENÚ FLOTANTE --- */
+        .menu-flotante {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .boton-principal {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background-color: #c8102e;
+            color: white;
+            font-size: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .botones-secundarios {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+
+        .botones-secundarios a {
+            width: 180px;
+            padding: 12px;
+            background-color: #222;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .botones-secundarios a:hover {
+            background-color: rgb(200, 4, 10);
+        }
+
+        .menu-flotante:hover .botones-secundarios {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* --- CONTENEDOR DE CUADRADOS PROLIJOS (SEDES) --- */
+        .subtitulo-seccion {
+            text-align: center;
+            color: #eee;
+            font-size: 16px;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+
+        .contenedor-sedes {
+            max-width: 1200px;
+            margin: 0 auto 60px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .cuadro-sede {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-top: 5px solid rgb(200, 4, 10);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .cuadro-sede:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+        }
+
+        .icono-sede {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .cuadro-sede h2 {
+            font-size: 21px;
+            color: rgb(200, 4, 10);
+            margin-bottom: 8px;
+        }
+
+        .sede-direccion {
+            display: inline-block;
+            background: #eee;
+            color: #333;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 5px;
+            margin-bottom: 12px;
+        }
+
+        .cuadro-sede p {
+            color: #444;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .btn-link-sede {
+            display: block;
+            text-align: center;
+            background-color: rgb(200, 4, 10);
+            color: white;
+            text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-link-sede:hover {
+            background-color: #222;
+        }
+
+        @media (max-width: 760px) {
+            .barra-superior {
+                height: auto;
+                min-height: 80px;
+                padding: 10px 12px;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .barra-superior nav {
+                gap: 6px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .barra-superior a {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+
+            .escudos img {
+                width: 36px;
+                height: 36px;
+            }
+
+            h1 {
+                font-size: 28px;
+                padding-top: 135px;
+            }
+
+            .contenedor-sedes {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-flotante {
+                right: 15px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Menú Flotante Lateral -->
+    <div class="menu-flotante">
+        <button class="boton-principal" title="Menú de compras y subastas">☰</button>
+        <div class="botones-secundarios">
+            <a href="Compras.html">🛒 Tienda / Catálogo</a>
+            <a href="articulos_publicados.html">📢 Artículos publicados</a>
+            <a href="Favoritos.html">♡ Mis Favoritos</a>
+            <a href="Carrito.html">🛍️ Mi Carrito</a>
+        </div>
+    </div>
+
+    <!-- Barra de Navegación Superior -->
+    <header class="barra-superior">
+        <div class="escudos">
+            <a href="prueba1.html"><img src="fotos/escudo1.PNG" alt="Escudo Independiente 1"></a>
+            <a href="prueba1.html"><img src="fotos/escudo2.PNG" alt="Escudo Independiente 2"></a>
+            <a href="prueba1.html"><img src="fotos/Captura.PNG" alt="Escudo Histórico"></a>
+        </div>
+        <nav>
+            <a href="prueba1.html">Inicio</a>
+            <a href="Compras.html">Tienda</a>
+            <a href="sedes.html" class="activo">Sedes</a>
+            <a href="nosotros.html">Nosotros</a>
+            <a href="articulos_publicados.html">Publicar</a>
+            <a href="Perfil.html">Perfil</a>
+        </nav>
+    </header>
+
+    <h1>
+        Club Atlético Independiente
+        <span>Nuestras Sedes e Instalaciones</span>
+    </h1>
+    <p class="subtitulo-seccion">Conocé cada una de las sedes oficiales y predios deportivos del Rey de Copas.</p>
+
+    <!-- Grilla de Cuadrados Prolijos -->
+    <main class="contenedor-sedes">
+
+        <!-- Sede 1 -->
+        <article class="cuadro-sede">
+            <div>
+                <div class="icono-sede">🏛️</div>
+                <h2>Sede Social Avellaneda</h2>
+                <span class="sede-direccion">📍 Av. Mitre 470, Avellaneda</span>
+                <p>
+                    La histórica sede central y corazón administrativo del club. Cuenta con atención al socio, natatorio
+                    cubierto climatizado, microestadio, gimnasios de pesas y diversas actividades deportivas y sociales.
+                </p>
+            </div>
+            <a href="https://maps.google.com/?q=Av.+Mitre+470,+Avellaneda" target="_blank" rel="noopener noreferrer"
+                class="btn-link-sede">
+                📍 Ver en Google Maps
+            </a>
+        </article>
+
+        <!-- Sede 2 -->
+        <article class="cuadro-sede">
+            <div>
+                <div class="icono-sede">🏟️</div>
+                <h2>Estadio Libertadores de América</h2>
+                <span class="sede-direccion">📍 Ricardo Bochini 751, Avellaneda</span>
+                <p>
+                    El mítico estadio donde se forjó la leyenda del Rey de Copas. Bautizado en homenaje al maestro
+                    Ricardo Enrique Bochini, cuenta con capacidad para más de 42.000 espectadores y tecnología de
+                    vanguardia.
+                </p>
+            </div>
+            <a href="https://maps.google.com/?q=Estadio+Libertadores+de+America+Ricardo+Enrique+Bochini" target="_blank"
+                rel="noopener noreferrer" class="btn-link-sede">
+                📍 Ver en Google Maps
+            </a>
+        </article>
+
+        <!-- Sede 3 -->
+        <article class="cuadro-sede">
+            <div>
+                <div class="icono-sede">⚽</div>
+                <h2>Predio Santo Domingo</h2>
+                <span class="sede-direccion">📍 Ortega y Sande, Villa Domínico</span>
+                <p>
+                    Centro de alto rendimiento deportivo. Aquí entrena a diario el plantel profesional de Primera
+                    División y se forman las divisiones inferiores e infantiles del club con canchas de primer nivel.
+                </p>
+            </div>
+            <a href="https://maps.google.com/?q=Predio+Santo+Domingo+Independiente+Villa+Dominico" target="_blank"
+                rel="noopener noreferrer" class="btn-link-sede">
+                📍 Ver en Google Maps
+            </a>
+        </article>
+
+        <!-- Sede 4 -->
+        <article class="cuadro-sede">
+            <div>
+                <div class="icono-sede">🏙️</div>
+                <h2>Sede Capital Federal (Boyacá)</h2>
+                <span class="sede-direccion">📍 Av. Boyacá 470, Flores, CABA</span>
+                <p>
+                    Punto de encuentro para los socios de la Ciudad de Buenos Aires. Ofrece centro de atención, pago de
+                    cuotas, venta de indumentaria en la tienda oficial y actividades recreativas bajo techo.
+                </p>
+            </div>
+            <a href="https://maps.google.com/?q=Av.+Boyaca+470,+Flores,+CABA" target="_blank" rel="noopener noreferrer"
+                class="btn-link-sede">
+                📍 Ver en Google Maps
+            </a>
+        </article>
+
+        <!-- Sede 5 -->
+        <article class="cuadro-sede">
+            <div>
+                <div class="icono-sede">🏊‍♂️</div>
+                <h2>Complejo Recreativo Wilde</h2>
+                <span class="sede-direccion">📍 Las Flores 1700, Wilde</span>
+                <p>
+                    Extenso predio al aire libre de 27 hectáreas pensado para la familia roja. Dispone de piletas
+                    olímpicas de verano, canchas de fútbol, tenis, quinchos, parrillas y espacio de camping.
+                </p>
+            </div>
+            <a href="https://maps.google.com/?q=Complejo+Wilde+Independiente+Las+Flores+1700" target="_blank"
+                rel="noopener noreferrer" class="btn-link-sede">
+                📍 Ver en Google Maps
+            </a>
+        </article>
+
+        <!-- Sede 6 -->
+        <article class="cuadro-sede">
+            <div>
+                <div class="icono-sede">🎾</div>
+                <h2>Complejo de Tenis</h2>
+                <span class="sede-direccion">📍 Alsina y Cordero, Avellaneda</span>
+                <p>
+                    Predio contiguo al estadio destinado exclusivamente al tenis. Dispone de canchas de polvo de
+                    ladrillo iluminadas, torneos federados para socios y escuela formativa para todas las edades.
+                </p>
+            </div>
+            <a href="https://maps.google.com/?q=Alsina+y+Cordero,+Avellaneda" target="_blank" rel="noopener noreferrer"
+                class="btn-link-sede">
+                📍 Ver en Google Maps
+            </a>
+        </article>
+
+    </main>
+
+</body>
+
+</html>

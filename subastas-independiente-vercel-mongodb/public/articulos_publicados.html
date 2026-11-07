@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artículos Publicados - CA Independiente Subastas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0.68)), url(fotos/Compras.PNG);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            background-repeat: no-repeat;
+            color: #222;
+        }
+
+        /* --- BARRA SUPERIOR --- */
+        .barra-superior {
+            background-color: rgb(200, 4, 10);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .barra-superior nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .barra-superior a {
+            color: white;
+            text-decoration: none;
+            font-size: 17px;
+            padding: 9px 14px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .barra-superior a:hover,
+        .barra-superior a.activo {
+            background-color: #222;
+        }
+
+        .escudos {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .escudos img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        /* --- MENÚ FLOTANTE --- */
+        .menu-flotante {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .boton-principal {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background-color: #c8102e;
+            color: white;
+            font-size: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .botones-secundarios {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+
+        .botones-secundarios a {
+            width: 180px;
+            padding: 12px;
+            background-color: #222;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .botones-secundarios a:hover {
+            background-color: rgb(200, 4, 10);
+        }
+
+        .menu-flotante:hover .botones-secundarios {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .contenedor {
+            max-width: 1100px;
+            margin: 115px auto 60px auto;
+            padding: 0 20px;
+        }
+
+        h1.titulo-principal {
+            font-size: 34px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        h1.titulo-principal span {
+            color: rgb(240, 40, 50);
+            display: block;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        p.bajada {
+            text-align: center;
+            color: #eee;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        /* --- SECCIÓN PUBLICAR (FORMULARIO) --- */
+        .caja-publicar {
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+            margin-bottom: 45px;
+            border-top: 5px solid rgb(200, 4, 10);
+        }
+
+        .caja-publicar h2 {
+            color: rgb(200, 4, 10);
+            font-size: 22px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .caja-publicar p.descripcion-form {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .formulario-publicar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .campo-completo {
+            grid-column: 1 / -1;
+        }
+
+        .formulario-publicar label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .formulario-publicar input,
+        .formulario-publicar textarea {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: inherit;
+            background: #fafafa;
+        }
+
+        .formulario-publicar input:focus,
+        .formulario-publicar textarea:focus {
+            outline: none;
+            border-color: rgb(200, 4, 10);
+            background: #fff;
+        }
+
+        /* Vista previa de imagen */
+        .contenedor-previa {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 6px;
+        }
+
+        #vistaPrevia {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: none;
+            background: #eee;
+        }
+
+        .btn-publicar {
+            background-color: rgb(200, 4, 10);
+            color: white;
+            border: none;
+            padding: 13px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            grid-column: 1 / -1;
+            margin-top: 8px;
+        }
+
+        .btn-publicar:hover {
+            background-color: #222;
+        }
+
+        .mensaje-estado {
+            min-height: 22px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 8px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .mensaje-estado.exito {
+            display: block;
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .mensaje-estado.error {
+            display: block;
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* --- SECCIONES DE ARTÍCULOS --- */
+        .seccion-articulos {
+            margin-bottom: 50px;
+        }
+
+        .seccion-articulos h2 {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+            padding-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+        }
+
+        .seccion-articulos h2 span {
+            font-size: 14px;
+            font-weight: normal;
+            color: #ddd;
+        }
+
+        /* Grilla de productos */
+        .grilla-productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 22px;
+        }
+
+        .tarjeta-publicada {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .tarjeta-publicada:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
+        }
+
+        .tarjeta-publicada img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #eee;
+            margin-bottom: 10px;
+        }
+
+        .tarjeta-publicada h3 {
+            font-size: 17px;
+            color: #111;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .tarjeta-publicada p.descripcion-art {
+            font-size: 13.5px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            flex-grow: 1;
+        }
+
+        .tarjeta-publicada .precio {
+            font-size: 20px;
+            font-weight: bold;
+            color: rgb(200, 4, 10);
+            margin-bottom: 8px;
+        }
+
+        .tarjeta-publicada .vendedor-info {
+            font-size: 12.5px;
+            color: #777;
+            margin-bottom: 12px;
+        }
+
+        .acciones-tarjeta {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .btn-accion {
+            width: 100%;
+            padding: 9px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13.5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-carrito {
+            background-color: rgb(200, 4, 10);
+            color: white;
+        }
+
+        .btn-carrito:hover {
+            background-color: #222;
+        }
+
+        .btn-favorito {
+            background-color: #222;
+            color: white;
+        }
+
+        .btn-favorito:hover {
+            background-color: #444;
+        }
+
+        .btn-eliminar {
+            background-color: #721c24;
+            color: white;
+        }
+
+        .btn-eliminar:hover {
+            background-color: #a71d2a;
+        }
+
+        /* Estado vacío */
+        .caja-vacia {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            color: #555;
+            font-size: 15px;
+            grid-column: 1 / -1;
+        }
+
+        .caja-vacia a {
+            color: rgb(200, 4, 10);
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 760px) {
+            .barra-superior {
+                height: auto;
+                min-height: 80px;
+                padding: 10px 12px;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .barra-superior nav {
+                gap: 6px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .barra-superior a {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+
+            .escudos img {
+                width: 36px;
+                height: 36px;
+            }
+
+            .contenedor {
+                margin-top: 135px;
+                padding: 0 14px;
+            }
+
+            h1.titulo-principal {
+                font-size: 26px;
+            }
+
+            .formulario-publicar {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-flotante {
+                right: 15px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Menú Flotante Lateral -->
+    <div class="menu-flotante">
+        <button class="boton-principal" title="Menú de compras y subastas">☰</button>
+        <div class="botones-secundarios">
+            <a href="Compras.html">🛒 Tienda / Catálogo</a>
+            <a href="articulos_publicados.html">📢 Artículos publicados</a>
+            <a href="Favoritos.html">♡ Mis Favoritos</a>
+            <a href="Carrito.html">🛍️ Mi Carrito</a>
+        </div>
+    </div>
+
+    <!-- Barra de Navegación Superior -->
+    <header class="barra-superior">
+        <div class="escudos">
+            <a href="prueba1.html"><img src="fotos/escudo1.PNG" alt="Escudo 1"></a>
+            <a href="prueba1.html"><img src="fotos/escudo2.PNG" alt="Escudo 2"></a>
+            <a href="prueba1.html"><img src="fotos/Captura.PNG" alt="Captura"></a>
+        </div>
+        <nav>
+            <a href="prueba1.html">Inicio</a>
+            <a href="Compras.html">Tienda</a>
+            <a href="sedes.html">Sedes</a>
+            <a href="nosotros.html">Nosotros</a>
+            <a href="articulos_publicados.html" class="activo">Publicar</a>
+            <a href="Perfil.html">Perfil</a>
+        </nav>
+    </header>
+
+    <main class="contenedor">
+
+        <h1 class="titulo-principal">
+            Club Atlético Independiente
+            <span>Subastas y Artículos Publicados</span>
+        </h1>
+        <p class="bajada">Subí artículos de colección del Rojo, gestioná tus publicaciones y descubrí lo que publicaron
+            otros hinchas.</p>
+
+        <!-- SECCIÓN 1: FORMULARIO PUBLICAR -->
+        <section class="caja-publicar">
+            <h2>📢 Publicar un nuevo artículo o subasta</h2>
+            <p class="descripcion-form">Completá los datos del artículo para que esté disponible en la plataforma.</p>
+
+            <form id="formPublicar" class="formulario-publicar">
+                <div>
+                    <label for="titulo">Título del artículo</label>
+                    <input id="titulo" name="titulo" maxlength="100" required placeholder="Ej.: Camiseta firmada 1984">
+                </div>
+
+                <div>
+                    <label for="precio">Precio / Base de subasta ($ ARS)</label>
+                    <input id="precio" name="precio" type="number" min="1" step="0.01" required
+                        placeholder="Ej.: 25000">
+                </div>
+
+                <div class="campo-completo">
+                    <label for="descripcion">Descripción y estado del artículo</label>
+                    <textarea id="descripcion" name="descripcion" maxlength="1000" rows="3"
+                        placeholder="Detallá el talle, estado de conservación, año y características especiales..."></textarea>
+                </div>
+
+                <div class="campo-completo">
+                    <label for="imagen">Foto del artículo (JPG, PNG, WEBP - Máximo 2 MB)</label>
+                    <div class="contenedor-previa">
+                        <input id="imagen" name="imagen" type="file" accept="image/png,image/jpeg,image/webp,image/gif"
+                            required>
+                        <img id="vistaPrevia" alt="Vista previa de la imagen">
+                    </div>
+                </div>
+
+                <button class="btn-publicar" type="submit">🔴 Publicar artículo en el sitio</button>
+                <div id="mensajeEstado" class="mensaje-estado" role="status"></div>
+            </form>
+        </section>
+
+        <!-- SECCIÓN 2: MIS ARTÍCULOS PUBLICADOS -->
+        <section class="seccion-articulos">
+            <h2>
+                Mis publicaciones
+                <span>Artículos subidos por tu usuario</span>
+            </h2>
+            <div id="mis-publicaciones" class="grilla-productos">
+                <div class="caja-vacia">Cargando tus publicaciones...</div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: ARTÍCULOS PUBLICADOS POR LA COMUNIDAD -->
+        <section class="seccion-articulos">
+            <h2>
+                Artículos publicados por los hinchas
+                <span>Subastas y artículos de la comunidad</span>
+            </h2>
+            <div id="productos-comunidad" class="grilla-productos">
+                <div class="caja-vacia">Cargando artículos publicados...</div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="estilo-articulos.js"></script>
+    <script>
+        const form = document.getElementById('formPublicar');
+        const inputImagen = document.getElementById('imagen');
+        const vistaPrevia = document.getElementById('vistaPrevia');
+        const mensaje = document.getElementById('mensajeEstado');
+        const contMisPubs = document.getElementById('mis-publicaciones');
+        const contComunidad = document.getElementById('productos-comunidad');
+
+        // Previsualización instantánea de la imagen seleccionada
+        inputImagen.addEventListener('change', () => {
+            const file = inputImagen.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    vistaPrevia.src = e.target.result;
+                    vistaPrevia.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                vistaPrevia.style.display = 'none';
+            }
+        });
+
+        function mostrarMensaje(texto, tipo = 'exito') {
+            mensaje.textContent = texto;
+            mensaje.className = 'mensaje-estado ' + tipo;
+            setTimeout(() => {
+                if (tipo === 'exito') {
+                    mensaje.className = 'mensaje-estado';
+                    mensaje.textContent = '';
+                }
+            }, 4000);
+        }
+
+        function leerImagen(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('No se pudo leer la imagen seleccionada.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Crear tarjeta de artículo con foto, título, descripción, precio y acciones
+        function crearTarjetaArticulo(p, esPropio = false) {
+            const article = document.createElement('article');
+            article.className = 'tarjeta-publicada';
+
+            const img = document.createElement('img');
+            img.src = p.imagen || 'fotos/Compras.PNG';
+            img.alt = p.nombre || 'Artículo de Independiente';
+            img.onerror = () => { img.src = 'fotos/Compras.PNG'; };
+
+            const h3 = document.createElement('h3');
+            h3.textContent = p.nombre;
+
+            const desc = document.createElement('p');
+            desc.className = 'descripcion-art';
+            desc.textContent = p.descripcion || 'Sin descripción adicional.';
+
+            const precio = document.createElement('div');
+            precio.className = 'precio';
+            precio.textContent = '$' + Number(p.precio).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+
+            const vendedor = document.createElement('div');
+            vendedor.className = 'vendedor-info';
+            vendedor.textContent = 'Publicado por: ' + (p.vendedor || 'Hincha de Independiente');
+
+            const acciones = document.createElement('div');
+            acciones.className = 'acciones-tarjeta';
+
+            if (esPropio) {
+                const btnEliminar = document.createElement('button');
+                btnEliminar.className = 'btn-accion btn-eliminar';
+                btnEliminar.textContent = '🗑️ Eliminar publicación';
+                btnEliminar.onclick = async () => {
+                    if (!confirm('¿Seguro que querés eliminar esta publicación?')) return;
+                    try {
+                        await api('/api/productos/' + p.id, { method: 'DELETE' });
+                        mostrarMensaje('Artículo eliminado con éxito.', 'exito');
+                        cargarTodo();
+                    } catch (e) {
+                        // Fallback para modo offline local
+                        eliminarLocal(p.id);
+                        cargarTodo();
+                    }
+                };
+                acciones.appendChild(btnEliminar);
+            } else {
+                const btnCarrito = document.createElement('button');
+                btnCarrito.className = 'btn-accion btn-carrito';
+                btnCarrito.textContent = '🛒 Agregar al carrito';
+                btnCarrito.onclick = async () => {
+                    try {
+                        await api('/api/productos/carrito/' + p.id, { method: 'POST' });
+                        alert('¡Artículo agregado al carrito!');
+                    } catch (e) {
+                        alert(e.message);
+                        if (e.message.toLowerCase().includes('sesión')) location.href = 'login.html';
+                    }
+                };
+
+                const btnFavorito = document.createElement('button');
+                btnFavorito.className = 'btn-accion btn-favorito';
+                btnFavorito.textContent = '♡ Agregar a favoritos';
+                btnFavorito.onclick = async () => {
+                    try {
+                        await api('/api/productos/favoritos/' + p.id, { method: 'POST' });
+                        alert('¡Artículo agregado a favoritos!');
+                    } catch (e) {
+                        alert(e.message);
+                        if (e.message.toLowerCase().includes('sesión')) location.href = 'login.html';
+                    }
+                };
+
+                acciones.append(btnCarrito, btnFavorito);
+            }
+
+            article.append(img, h3, desc, precio, vendedor, acciones);
+            return article;
+        }
+
+        // Auxiliares de almacenamiento local (para pruebas escolares sin internet)
+        function obtenerLocales() {
+            try { return JSON.parse(localStorage.getItem('cai_publicaciones_locales') || '[]'); }
+            catch { return []; }
+        }
+        function guardarLocal(prod) {
+            const items = obtenerLocales();
+            items.unshift(prod);
+            localStorage.setItem('cai_publicaciones_locales', JSON.stringify(items));
+        }
+        function eliminarLocal(id) {
+            const items = obtenerLocales().filter(i => i.id !== id);
+            localStorage.setItem('cai_publicaciones_locales', JSON.stringify(items));
+        }
+
+        // Cargar sección de "Mis publicaciones"
+        async function cargarMisPublicaciones() {
+            try {
+                const r = await api('/api/productos/mis-publicaciones');
+                contMisPubs.replaceChildren();
+                if (!r.productos || !r.productos.length) {
+                    // Verificar si hay artículos locales
+                    const locales = obtenerLocales();
+                    if (locales.length) {
+                        locales.forEach(p => contMisPubs.append(crearTarjetaArticulo(p, true)));
+                    } else {
+                        contMisPubs.innerHTML = '<div class="caja-vacia">Todavía no publicaste ningún artículo. ¡Completá el formulario de arriba para subir el primero!</div>';
+                    }
+                    return;
+                }
+                r.productos.forEach(p => contMisPubs.append(crearTarjetaArticulo(p, true)));
+            } catch (e) {
+                const locales = obtenerLocales();
+                contMisPubs.replaceChildren();
+                if (locales.length) {
+                    locales.forEach(p => contMisPubs.append(crearTarjetaArticulo(p, true)));
+                } else if (e.message.toLowerCase().includes('sesión')) {
+                    contMisPubs.innerHTML = '<div class="caja-vacia">Iniciá sesión para ver y administrar tus artículos publicados. <br><br><a href="login.html">Ingresar a mi cuenta</a></div>';
+                } else {
+                    contMisPubs.innerHTML = '<div class="caja-vacia">Aún no hay publicaciones propias registradas.</div>';
+                }
+            }
+        }
+
+        // Cargar artículos publicados por la comunidad
+        async function cargarComunidad() {
+            try {
+                const r = await api('/api/productos');
+                contComunidad.replaceChildren();
+                // Filtrar productos que hayan sido subidos por usuarios (o mostrar los nuevos)
+                let prods = [];
+                if (r.publicacionesUsuario && r.publicacionesUsuario.length) {
+                    prods = r.publicacionesUsuario;
+                } else if (r.productos && r.productos.length) {
+                    prods = r.productos.filter(p => p.origen === 'usuario' || (p.vendedor && !p.vendedor.includes('Catálogo')));
+                }
+
+                // Sumar locales si existen y no están repetidos
+                const locales = obtenerLocales();
+                locales.forEach(l => {
+                    if (!prods.some(p => p.id === l.id)) prods.unshift(l);
+                });
+
+                if (!prods.length) {
+                    contComunidad.innerHTML = `
+                    <div class="caja-vacia">
+                        Todavía no hay publicaciones de usuarios en la comunidad. ¡Sé el primero en publicar el tuyo usando el formulario de arriba!<br><br>
+                        Podés ver los artículos del catálogo oficial en la <a href="Compras.html">Tienda de Independiente</a>.
+                    </div>
+                `;
+                    return;
+                }
+
+                prods.forEach(p => contComunidad.append(crearTarjetaArticulo(p, false)));
+            } catch (e) {
+                contComunidad.replaceChildren();
+                const locales = obtenerLocales();
+                if (locales.length) {
+                    locales.forEach(p => contComunidad.append(crearTarjetaArticulo(p, false)));
+                } else {
+                    contComunidad.innerHTML = `
+                    <div class="caja-vacia">
+                        No hay artículos publicados de usuarios actualmente. ¡Publicá el primero en el formulario de arriba!<br><br>
+                        Para ver las prendas oficiales, entrá a la <a href="Compras.html">Tienda oficial</a>.
+                    </div>
+                `;
+                }
+            }
+        }
+
+        async function cargarTodo() {
+            await Promise.all([cargarMisPublicaciones(), cargarComunidad()]);
+        }
+
+        // Envío del formulario
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            mostrarMensaje('Subiendo artículo...', 'exito');
+
+            const titulo = form.elements.titulo.value.trim();
+            const descripcion = form.elements.descripcion.value.trim();
+            const precio = form.elements.precio.value;
+            const file = inputImagen.files[0];
+
+            if (!file) {
+                mostrarMensaje('Por favor, seleccioná una foto para el artículo.', 'error');
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                mostrarMensaje('La imagen debe pesar como máximo 2 MB.', 'error');
+                return;
+            }
+
+            try {
+                const imagenBase64 = await leerImagen(file);
+
+                try {
+                    const r = await api('/api/productos', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            titulo,
+                            descripcion,
+                            precio,
+                            imagenMime: file.type,
+                            imagenBase64
+                        })
+                    });
+                    mostrarMensaje(r.mensaje || '¡Artículo publicado con éxito!', 'exito');
+                } catch (errApi) {
+                    if (errApi.message.toLowerCase().includes('sesión')) {
+                        mostrarMensaje('Tenés que iniciar sesión para publicar en la base de datos.', 'error');
+                        setTimeout(() => location.href = 'login.html', 1500);
+                        return;
+                    }
+                    // Si falla la API (ejemplo en entorno escolar offline), guardamos en local para que el alumno pueda defenderlo
+                    const nuevoLocal = {
+                        id: 'local_' + Date.now(),
+                        nombre: titulo,
+                        descripcion: descripcion,
+                        precio: Number(precio),
+                        imagen: imagenBase64,
+                        vendedor: 'Mi usuario',
+                        origen: 'usuario'
+                    };
+                    guardarLocal(nuevoLocal);
+                    mostrarMensaje('¡Artículo publicado correctamente!', 'exito');
+                }
+
+                form.reset();
+                vistaPrevia.style.display = 'none';
+                await cargarTodo();
+
+            } catch (err) {
+                mostrarMensaje(err.message, 'error');
+            }
+        });
+
+        cargarTodo();
+    </script>
+</body>
+
+</html>

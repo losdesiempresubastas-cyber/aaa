@@ -1,0 +1,35 @@
+BASE DE DATOS - SUBASTAS INDEPENDIENTE (MongoDB Atlas)
+
+La aplicación utiliza MongoDB Atlas. Los datos se guardan en la nube y se comparten entre todos los visitantes del sitio.
+
+Colección: usuarios
+- _id: identificador de MongoDB
+- nombre, apellido
+- fechaNacimiento
+- mail (único)
+- clave (contraseña ingresada por el usuario)
+- direccion
+- creadoEn
+
+Colección: productos
+- _id: identificador del producto
+- usuarioId: usuario que lo publicó (null para el catálogo original)
+- nombre, descripcion, precio
+- imagen o imagenData + imagenMime
+- vendedor, estado, creadoEn
+
+Colección: carrito
+- usuarioId
+- productoId
+- cantidad
+- agregadoEn
+
+Colección: favoritos
+- usuarioId
+- productoId
+- creadoEn
+
+Colección: configuracion
+- Marca que permite cargar el catálogo original sin duplicarlo.
+
+Las colecciones se crean automáticamente cuando se conecta la aplicación por primera vez. No hay que crear las tablas manualmente.

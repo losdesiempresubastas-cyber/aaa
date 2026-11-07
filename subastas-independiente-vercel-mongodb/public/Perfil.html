@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi perfil - Independiente Subastas</title>
+  <link rel="stylesheet" href="estilo-articulos.css">
+  <style>
+    .caja-perfil {
+      max-width: 760px;
+      margin: 35px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 3px 14px #0001
+    }
+
+    .caja-perfil h1 {
+      color: #c8040a;
+      text-align: center
+    }
+
+    .dato {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      overflow-wrap: anywhere
+    }
+
+    .dato b {
+      display: block;
+      margin-bottom: 4px
+    }
+
+    .form-direccion {
+      margin-top: 22px;
+      padding: 18px;
+      background: #f7f7f7;
+      border-radius: 9px
+    }
+
+    .form-direccion input {
+      display: block;
+      width: 100%;
+      padding: 11px;
+      margin: 8px 0;
+      border: 1px solid #bbb;
+      border-radius: 5px
+    }
+
+    .seccion-publicaciones {
+      max-width: 1150px;
+      margin: 30px auto;
+      padding: 0 18px
+    }
+
+    .volver {
+      color: #fff;
+      background: #333;
+      padding: 9px 12px;
+      border-radius: 5px;
+      text-decoration: none
+    }
+
+    .estado {
+      min-height: 22px;
+      color: #c8040a
+    }
+  </style>
+</head>
+
+<body data-lista="mis-publicaciones">
+  <header class="barra"><strong>🔴 Independiente Subastas</strong>
+    <nav><a href="prueba1.html">Inicio</a><a href="Compras.html">Tienda</a><a href="sedes.html">Sedes</a><a
+        href="nosotros.html">Nosotros</a><a href="articulos_publicados.html">Publicar</a><a
+        href="Favoritos.html">Favoritos</a><a href="Carrito.html">Carrito</a></nav>
+  </header>
+  <main class="caja-perfil">
+    <h1>Mi perfil</h1>
+    <div id="datos">Cargando perfil...</div>
+    <form id="formDireccion" class="form-direccion">
+      <label for="direccion">Mi dirección</label>
+      <input id="direccion" name="direccion" maxlength="250" placeholder="Ingresá tu dirección">
+      <button class="boton" type="submit">Guardar dirección</button>
+      <p id="estado" class="estado" role="status"></p>
+    </form>
+    <button id="cerrarSesion" class="boton secundario" type="button">Cerrar sesión</button>
+  </main>
+  <section class="seccion-publicaciones">
+    <h1>Mis artículos publicados</h1>
+    <div id="productos" class="productos">
+      <p>Cargando publicaciones...</p>
+    </div>
+  </section>
+  <script src="estilo-articulos.js"></script>
+  <script>
+    const datos = document.getElementById('datos'), estado = document.getElementById('estado'), direccion = document.getElementById('direccion');
+    function dato(etiqueta, valor) { const d = document.createElement('div'); d.className = 'dato'; const b = document.createElement('b'); b.textContent = etiqueta; const span = document.createElement('span'); span.textContent = valor || 'No informado'; d.append(b, span); datos.append(d); }
+    async function cargarPerfil() {
+      try {
+        const r = await api('/api/auth/me');
+        datos.replaceChildren();
+        dato('Nombre', r.usuario.nombre);
+        dato('Apellido', r.usuario.apellido);
+        dato('Fecha de nacimiento', r.usuario.fecha_nacimiento);
+        dato('Email', r.usuario.mail);
+        dato('Dirección', r.usuario.direccion);
+        direccion.value = r.usuario.direccion || '';
+      } catch (e) {
+        try {
+          const u = JSON.parse(localStorage.getItem('cai_usuario'));
+          if (u) {
+            datos.replaceChildren();
+            dato('Nombre', u.nombre);
+            dato('Apellido', u.apellido);
+            dato('Fecha de nacimiento', u.fecha_nacimiento || '2008-01-01');
+            dato('Email', u.mail);
+            dato('Dirección', u.direccion || 'Avellaneda');
+            direccion.value = u.direccion || '';
+            return;
+          }
+        } catch (_) { }
+        if (e.message.toLowerCase().includes('sesión')) location.href = 'login.html';
+        else datos.textContent = e.message;
+      }
+    }
+    document.getElementById('formDireccion').addEventListener('submit', async e => {
+      e.preventDefault();
+      estado.textContent = 'Guardando...';
+      try {
+        const r = await api('/api/auth/perfil', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ direccion: direccion.value }) });
+        estado.textContent = r.mensaje;
+        await cargarPerfil();
+      } catch (err) {
+        try {
+          const u = JSON.parse(localStorage.getItem('cai_usuario') || '{}');
+          u.direccion = direccion.value;
+          localStorage.setItem('cai_usuario', JSON.stringify(u));
+          estado.textContent = 'Dirección guardada correctamente.';
+          await cargarPerfil();
+        } catch (_) {
+          estado.textContent = err.message;
+        }
+      }
+    });
+    document.getElementById('cerrarSesion').addEventListener('click', async () => {
+      try { await api('/api/auth/logout', { method: 'POST' }); }
+      catch (_) { localStorage.removeItem('cai_usuario'); }
+      finally { localStorage.removeItem('cai_usuario'); location.href = 'login.html'; }
+    });
+    cargarPerfil(); cargarLista();
+  </script>
+</body>
+
+</html>

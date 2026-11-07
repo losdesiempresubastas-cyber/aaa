@@ -1,0 +1,14 @@
+{
+  "name": "subastas-independiente-vercel",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Subastas Independiente - sitio escolar con Vercel y MongoDB Atlas",
+  "engines": { "node": "22.x" },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "mongodb": "^6.13.0"
+  }
+}

@@ -1,0 +1,3 @@
+const {getDb}=require('../../lib/db');
+const {ObjectId}=require('mongodb');
+module.exports=async(req,res)=>{try{const id=req.query.id;if(!ObjectId.isValid(id))return res.status(404).end();const db=await getDb();const p=await db.collection('productos').findOne({_id:new ObjectId(id)},{projection:{imagenData:1,imagenMime:1}});if(!p||!p.imagenData)return res.status(404).end();res.setHeader('Content-Type',p.imagenMime||'application/octet-stream');res.setHeader('Cache-Control','public, max-age=3600, s-maxage=3600');res.send(Buffer.from(p.imagenData,'base64'));}catch(e){console.error(e);res.status(500).end();}};
